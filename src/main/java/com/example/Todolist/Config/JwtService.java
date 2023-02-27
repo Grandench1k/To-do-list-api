@@ -1,6 +1,5 @@
 package com.example.Todolist.Config;
 
-import com.example.Todolist.User.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -9,7 +8,6 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Field;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
