@@ -8,15 +8,16 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/boards")
+@RequestMapping("/api/v1/{userId}/boards")
 public class BoardController {
     private final BoardRepository boardRepository;
     private final BoardService boardService;
     @GetMapping()
-    public List<Board> getAllTasks() {
-    return boardRepository.findAll();
+    public List<Board> getAllTasks(@PathVariable("userId") String userId) {
+            return boardRepository.findAllByUserId(userId);
     }
     @PostMapping("/create")
     public ResponseEntity create(@RequestBody Board board) {
