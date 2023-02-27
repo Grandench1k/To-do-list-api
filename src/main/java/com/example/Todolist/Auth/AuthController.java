@@ -1,7 +1,5 @@
 package com.example.Todolist.Auth;
 
-import com.example.Todolist.Exceptions.AlreadyDefined;
-import com.example.Todolist.Exceptions.NotFound;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.http.ResponseEntity;
