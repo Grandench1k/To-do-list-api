@@ -16,6 +16,7 @@ public class Task {
     private String uuid;
 
     private String name;
+    private String userid;
     private String board_uuid;
     private String description;
 }

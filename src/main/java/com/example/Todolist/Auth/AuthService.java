@@ -30,7 +30,7 @@ public class AuthService {
         System.out.println(userRepository.findUserByEmail(user.getEmail()));
         System.out.println(userRepository.findUserByFirstname(user.getFirstname()));
         System.out.println(userRepository.findUserByLastname(user.getLastname()));
-        if (userRepository.findUserByEmail(user.getEmail()).isEmpty() && userRepository.findUserByFirstname(user.getFirstname()) == null && userRepository.findUserByLastname(user.getLastname()) == null) {
+        if (userRepository.findUserByEmail(user.getEmail()).isEmpty() || userRepository.findUserByFirstname(user.getFirstname()) == null || userRepository.findUserByLastname(user.getLastname()) == null) {
             userRepository.save(user);
             var jwtToken = jwtService.generateToken(user);
             return AuthenticationResponse.builder()

@@ -14,6 +14,6 @@ public class Board {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String uuid;
-    private Long userId;
+    private String userid;
     private String name;
 }
