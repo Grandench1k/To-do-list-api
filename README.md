@@ -1,30 +1,113 @@
-This is my rest api backend application for working with To-Do list applicattions.
+
+# Introduction
+
+This is my REST api backend application for working with To-Do list applicattions.
 
 
-Links to use this api:
+## Links to work with API
 
-    Registration - /api/auth/register
-    
-    authorization - /api/auth/authenticate
+#### GET all boards
 
-    Boards:
-    GetAllBoards - /api/{userid}/boards
-    
-    GetBoardByUuid - /api/{userid}/boards/{uuid}
-    
-    CreateBoard - /api/{userid}/boards/create
-    
-    UpdateBoardByUuid - /api/{userid}/boards/update/{uuid}
-    
-    DeleteBoardByUuid - /api/{userid}/boards/delete/{uuid}
-    
-    Tasks:
-    GetAllTasks - /api/{userid}/tasks
-    
-    GetTaskByUuid - /api/{userid}/tasks/{uuid}
-    
-    CreateTask - /api/{userid}/tasks/create
-    
-    UpdateTaskByUuid - /api/{userid}/tasks/update/{uuid}
-    
-    DeleteTaskByUuid - /api/{userid}/tasks/delete/{uuid}
+```http
+  GET /api/{userid}/boards
+```
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `userid`      | `string` | **Required**. User id |
+
+#### GET board by uuid
+
+```http
+  GET /api/{userid}/boards/{uuid}
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `userid`      | `string` | **Required**. User id |
+| `uuid`      | `string` | **Required**. Board's uuid  |
+
+#### POST new board
+
+```http
+  POST /api/{userid}/boards/create
+```
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `userid`      | `string` | **Required**. User id |
+| `name`      | `string` | **Required**. Board's name |
+
+#### UPDATE board by uuid
+
+```http
+  PUT /api/{userid}/boards/{uuid}/update
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `userid`      | `string` | **Required**. User id |
+| `uuid`      | `string` | **Required**. Board's uuid  |
+| `name`      | `string` | **Required**. Board's new name  |
+
+#### DELETE board by uuid
+
+```http
+  DELETE /api/{userid}/boards/{uuid}/delete
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `userid`      | `string` | **Required**. User id |
+| `uuid`      | `string` | **Required**. Board's uuid |
+
+#### GET all tasks
+
+```http
+  GET /api/{userid}/tasks
+```
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `userid`      | `string` | **Required**. User id |
+
+#### GET task by uuid
+
+```http
+  GET /api/{userid}/tasks/{uuid}
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `userid`      | `string` | **Required**. User id |
+| `uuid`      | `string` | **Required**. Task uuid  |
+
+#### POST new task
+
+```http
+  POST /api/{userid}/tasks/create
+```
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `userid`      | `string` | **Required**. User id |
+| `name`      | `string` | **Required**. Task's name |
+
+#### UPDATE task by uuid
+
+```http
+  PUT /api/{userid}/tasks/{uuid}/update
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `userid`      | `string` | **Required**. User id |
+| `uuid`      | `string` | **Required**. Task uuid  |
+| `name`      | `string` | **Required**. Task's new name  |
+
+#### DELETE task by uuid
+
+```http
+  DELETE /api/{userid}/tasks/{uuid}/delete
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `userid`      | `string` | **Required**. User id |
+| `uuid`      | `string` | **Required**. Task uuid |
