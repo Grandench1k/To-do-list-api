@@ -1,23 +1,27 @@
 package com.example.Todolist.Task;
 
+import com.example.Todolist.Exceptions.AlreadyDefined;
 import com.example.Todolist.Exceptions.NotFound;
 import com.example.Todolist.Exceptions.NotFoundUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/{userid}/tasks")
 public class TaskController {
-    private final TaskRepository taskRepository;
     private final TaskService taskService;
 
     @GetMapping()
-    public List<Task> getAllTasks(@PathVariable String userid) {
-        return taskRepository.findAllByUserid(userid);
+    public ResponseEntity getAllTasks(@PathVariable String userid) {
+        try {
+            return ResponseEntity.ok(taskService.findAll(userid));
+        } catch (NotFoundUser | NotFound e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Exception");
+        }
     }
 
     @PostMapping("/create")
@@ -25,9 +29,7 @@ public class TaskController {
         try {
             taskService.save(task, userid);
             return ResponseEntity.ok("Succesful");
-        } catch (NotFound e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (NotFoundUser e) {
+        } catch (NotFound | NotFoundUser | AlreadyDefined e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Exception");
@@ -51,10 +53,8 @@ public class TaskController {
         try {
             taskService.update(task, uuid, userid);
             return ResponseEntity.ok("successful!");
-        } catch (NotFound e) {
+        } catch (NotFound | AlreadyDefined | NotFoundUser e) {
             return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (NotFoundUser e) {
-                return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Exception");
         }
@@ -65,10 +65,10 @@ public class TaskController {
         try {
             taskService.delete(uuid, userid);
             return ResponseEntity.ok("Successful!");
-        } catch (NotFound e) {
+        } catch (NotFound | NotFoundUser e) {
             return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (NotFoundUser e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Exception");
         }
     }
 }

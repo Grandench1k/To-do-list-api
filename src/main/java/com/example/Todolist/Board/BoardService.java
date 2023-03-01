@@ -8,6 +8,8 @@ import com.example.Todolist.User.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class BoardService {
@@ -15,35 +17,57 @@ public class BoardService {
 
     public final UserRepository userRepository;
 
+    public List<Board> findAll(String userid) throws NotFound, NotFoundUser {
+    List<Board> board = boardRepository.findAllByUserid(userid);
+    User user = userRepository.findUserById(userid);
+        if (userid == null) {
+            throw new NotFoundUser("Please, write id");
+        }
+        if(user == null) {
+            throw new NotFoundUser("Can't find User with this id");
+        }
+        if (board.isEmpty()) {
+        throw new NotFound("You haven't any boards yet");
+        }
+        return board;
+    }
+
     public void save(Board board, String userid) throws AlreadyDefined, NotFound, NotFoundUser {
-        System.out.println(board.getName());
-        Board newBoard = boardRepository.findByName(board.getName());
+        Board oldBoard = boardRepository.findByName(board.getName());
         User user = userRepository.findUserById(userid);
-        if (newBoard == null && user != null) {
+        if (oldBoard == null && board.getName() != null && user != null) {
             board.setUserid(userid);
             boardRepository.save(board);
         } else {
             if(user == null) {
                 throw new NotFoundUser("Can't find User with this id");
             }
-            if (newBoard != null) {
+            if (board.getName() == null) {
+                throw new NotFound("You don't write a name");
+            }
+            if (oldBoard != null) {
                 throw new AlreadyDefined("Board with this name already defined");
             }
     }
-
-
     }
-    public void update(Board board, String uuid, String userid) throws NotFound, NotFoundUser {
-        Board oldBoard = boardRepository.findByUuid(uuid);
+    public void update(Board board, String uuid, String userid) throws NotFound, NotFoundUser, AlreadyDefined {
+        Board newBoard = boardRepository.findByUuid(uuid);
+        Board oldBoard = boardRepository.findByName(board.getName());
         User user = userRepository.findUserById(userid);
         if (user == null) {
             throw new NotFoundUser("Can't find User with this id");
         }
-        if (oldBoard == null ) {
+        if (board.getName() == null) {
+            throw new NotFound("You don't write a name");
+        }
+        if (newBoard == null) {
             throw new NotFound("board with this uuid does not exist");
         }
-        oldBoard.setName(board.getName());
-        boardRepository.save(oldBoard);
+        if (oldBoard != null) {
+            throw new AlreadyDefined("Board with this name already defined");
+        }
+        newBoard.setName(board.getName());
+        boardRepository.save(newBoard);
     }
     public Board findByUuid(String uuid, String userid) throws NotFound, NotFoundUser {
        Board board = boardRepository.findByUuid(uuid);
@@ -53,6 +77,9 @@ public class BoardService {
        } else  {
            if (user == null) {
                throw new NotFoundUser("Can't find User with this id");
+           }
+           if(uuid == null) {
+               throw new NotFound("Write a uuid of board you want to see");
            }
            if (board == null ) {
                throw new NotFound("board with this uuid does not exist");
