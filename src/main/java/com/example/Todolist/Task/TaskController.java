@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/{userid}/tasks")
+@RequestMapping("/api/{userid}/tasks")
 public class TaskController {
     private final TaskService taskService;
 
