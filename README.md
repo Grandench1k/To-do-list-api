@@ -1,10 +1,13 @@
 
-# Introduction
+<h1>Introduction</h1>
 
 This is my REST api backend application for working with To-Do list applicattions.
 
 
-## Links to work with API
+<h2> Links to work with API</h2>
+
+
+<h3>Links for boards</h3>
 
 #### GET all boards
 
@@ -58,6 +61,9 @@ This is my REST api backend application for working with To-Do list applicattion
 | :-------- | :------- | :-------------------------------- |
 | `userid`      | `string` | **Required**. User id |
 | `uuid`      | `string` | **Required**. Board's uuid |
+
+
+<h3>Links for tasks</h3>
 
 #### GET all tasks
 
