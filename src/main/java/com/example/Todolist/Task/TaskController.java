@@ -2,22 +2,22 @@ package com.example.Todolist.Task;
 
 import com.example.Todolist.Exceptions.AlreadyDefined;
 import com.example.Todolist.Exceptions.NotFound;
-import com.example.Todolist.Exceptions.NotFoundUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/{userid}/tasks")
+@RequestMapping("/api/tasks")
 public class TaskController {
     private final TaskService taskService;
 
     @GetMapping()
-    public ResponseEntity getAllTasks(@PathVariable String userid) {
+    public ResponseEntity getAllBoards(Authentication authentication) {
         try {
-            return ResponseEntity.ok(taskService.findAll(userid));
-        } catch (NotFoundUser | NotFound e) {
+            return ResponseEntity.ok(taskService.findAllByUser(authentication));
+        } catch (NotFound e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Exception");
@@ -25,11 +25,11 @@ public class TaskController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity create(@RequestBody Task task, @PathVariable String userid) {
+    public ResponseEntity create(@RequestBody Task task, Authentication authentication) {
         try {
-            taskService.save(task, userid);
+            taskService.save(task, authentication);
             return ResponseEntity.ok("Succesful");
-        } catch (NotFound | NotFoundUser | AlreadyDefined e) {
+        } catch (AlreadyDefined | NotFound e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Exception");
@@ -37,35 +37,33 @@ public class TaskController {
     }
 
     @GetMapping("/{uuid}")
-    public ResponseEntity getByUuid(@PathVariable String userid, @PathVariable String uuid) {
+    public ResponseEntity getByUuid(Authentication authentication, @PathVariable String uuid) {
         try {
-            return ResponseEntity.ok(taskService.findByUuid(uuid, userid));
-        } catch (NotFoundUser e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.ok(taskService.findByUuid(uuid, authentication));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Can't found task with this uuid");
         }
 
     }
 
-    @PutMapping("/update/{uuid}")
-    public ResponseEntity update(@RequestBody Task task,@PathVariable String userid, @PathVariable String uuid) {
+    @PutMapping("/{uuid}/update")
+    public ResponseEntity update(@RequestBody Task task, @PathVariable String uuid) {
         try {
-            taskService.update(task, uuid, userid);
+            taskService.update(task, uuid);
             return ResponseEntity.ok("successful!");
-        } catch (NotFound | AlreadyDefined | NotFoundUser e) {
+        } catch (NotFound | AlreadyDefined e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Exception");
         }
     }
 
-    @DeleteMapping("/delete/{uuid}")
-    public ResponseEntity delete(@PathVariable String userid, @PathVariable String uuid) {
+    @DeleteMapping("/{uuid}/delete")
+    public ResponseEntity delete(@PathVariable String uuid) {
         try {
-            taskService.delete(uuid, userid);
+            taskService.delete(uuid);
             return ResponseEntity.ok("Successful!");
-        } catch (NotFound | NotFoundUser e) {
+        } catch (NotFound e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Exception");

@@ -9,5 +9,5 @@ public interface TaskRepository extends JpaRepository<Task, String> {
 
     Task findByName(String name);
 
-    List<Task> findAllByUserid(String userid);
+    List<Task> findAllByUserid(Integer userid);
 }

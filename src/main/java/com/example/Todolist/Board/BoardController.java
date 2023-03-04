@@ -2,65 +2,65 @@ package com.example.Todolist.Board;
 
 import com.example.Todolist.Exceptions.AlreadyDefined;
 import com.example.Todolist.Exceptions.NotFound;
-import com.example.Todolist.Exceptions.NotFoundUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/{userid}/boards")
+@RequestMapping("/api/boards")
 public class BoardController {
     private final BoardService boardService;
     @GetMapping()
-    public ResponseEntity getAllTasks(@PathVariable String userid) {
+    public ResponseEntity getAllBoards(Authentication authentication) {
         try {
-            return ResponseEntity.ok(boardService.findAll(userid));
-        } catch (NotFound | NotFoundUser e) {
+            return ResponseEntity.ok(boardService.findAllByUser(authentication));
+        } catch (NotFound e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Exception");
         }
     }
     @PostMapping("/create")
-    public ResponseEntity create(@RequestBody Board board, @PathVariable String userid) {
+    public ResponseEntity create(@RequestBody Board board, Authentication authentication) {
         try {
-            boardService.save(board, userid);
+            boardService.save(board, authentication);
             return ResponseEntity.ok("Succesful");
-        } catch (AlreadyDefined | NotFoundUser | NotFound e) {
+        } catch (AlreadyDefined | NotFound e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Exception");
         }
     }
     @GetMapping("/{uuid}")
-    public ResponseEntity getByUuid(@PathVariable String userid, @PathVariable String uuid) {
+    public ResponseEntity getByUuid(@PathVariable String uuid, Authentication authentication) {
         try {
-            return ResponseEntity.ok(boardService.findByUuid(uuid, userid));
-        } catch (NotFound | NotFoundUser e) {
+            return ResponseEntity.ok(boardService.findByUuid(uuid, authentication));
+        } catch (NotFound e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Exception");
         }
 
     }
-    @PutMapping("/update/{uuid}")
-    public ResponseEntity update(@RequestBody Board board, @PathVariable String userid, @PathVariable String uuid ) {
+    @PutMapping("/{uuid}/update")
+    public ResponseEntity update(@RequestBody Board board, @PathVariable String uuid) {
         try {
-            boardService.update(board,uuid, userid);
+            boardService.update(board,uuid);
             return ResponseEntity.ok("Board succesfully updated!");
-        } catch (NotFound | AlreadyDefined | NotFoundUser e) {
+        } catch (NotFound | AlreadyDefined e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Exception");
         }
     }
-    @DeleteMapping("/delete/{uuid}")
-    public ResponseEntity delete(@PathVariable String userid, @PathVariable String uuid) {
+    @DeleteMapping("/{uuid}/delete")
+    public ResponseEntity delete(@PathVariable String uuid) {
         try {
-            boardService.delete(userid, uuid);
+            boardService.delete(uuid);
             return ResponseEntity.ok("Successful");
-        } catch (NotFound | NotFoundUser e) {
+        } catch (NotFound e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Exception");

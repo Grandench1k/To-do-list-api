@@ -2,10 +2,9 @@ package com.example.Todolist.Board;
 
 import com.example.Todolist.Exceptions.AlreadyDefined;
 import com.example.Todolist.Exceptions.NotFound;
-import com.example.Todolist.Exceptions.NotFoundUser;
 import com.example.Todolist.User.User;
-import com.example.Todolist.User.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,32 +14,24 @@ import java.util.List;
 public class BoardService {
     public final BoardRepository boardRepository;
 
-    public final UserRepository userRepository;
-
-    public List<Board> findAll(String userid) throws NotFound, NotFoundUser {
-    List<Board> board = boardRepository.findAllByUserid(userid);
-    User user = userRepository.findUserById(userid);
-        if (userid == null) {
-            throw new NotFoundUser("Please, write id");
-        }
-        if(user == null) {
-            throw new NotFoundUser("Can't find User with this id");
-        }
+    public List<Board> findAllByUser(Authentication authentication) throws NotFound{
+        User user = (User) authentication.getPrincipal();
+        List<Board> board = boardRepository.findAllByUserid(user.getId());
         if (board.isEmpty()) {
         throw new NotFound("You haven't any boards yet");
         }
         return board;
     }
 
-    public void save(Board board, String userid) throws AlreadyDefined, NotFound, NotFoundUser {
+    public void save(Board board, Authentication authentication) throws AlreadyDefined, NotFound {
+        User user = (User) authentication.getPrincipal();
         Board oldBoard = boardRepository.findByName(board.getName());
-        User user = userRepository.findUserById(userid);
-        if (oldBoard == null && board.getName() != null && user != null) {
-            board.setUserid(userid);
+        if (oldBoard == null && board.getName() != null) {
+            board.setUserid(user.getId());
             boardRepository.save(board);
         } else {
-            if(user == null) {
-                throw new NotFoundUser("Can't find User with this id");
+            if (board.getUserid() != user.getId()) {
+                throw new NotFound("You don't have access to save board on this user's account");
             }
             if (board.getName() == null) {
                 throw new NotFound("You don't write a name");
@@ -50,55 +41,50 @@ public class BoardService {
             }
     }
     }
-    public void update(Board board, String uuid, String userid) throws NotFound, NotFoundUser, AlreadyDefined {
+    public void update(Board board, String uuid) throws NotFound, AlreadyDefined {
         Board newBoard = boardRepository.findByUuid(uuid);
         Board oldBoard = boardRepository.findByName(board.getName());
-        User user = userRepository.findUserById(userid);
-        if (user == null) {
-            throw new NotFoundUser("Can't find User with this id");
-        }
-        if (board.getName() == null) {
-            throw new NotFound("You don't write a name");
-        }
-        if (newBoard == null) {
-            throw new NotFound("board with this uuid does not exist");
-        }
-        if (oldBoard != null) {
-            throw new AlreadyDefined("Board with this name already defined");
-        }
+            if (board.getName() == null) {
+                throw new NotFound("You don't write a name");
+            }
+            if (newBoard == null) {
+                throw new NotFound("board with this uuid does not exist");
+            }
+            if (oldBoard != null) {
+                throw new AlreadyDefined("Board with this name already defined");
+            }
         newBoard.setName(board.getName());
         boardRepository.save(newBoard);
     }
-    public Board findByUuid(String uuid, String userid) throws NotFound, NotFoundUser {
+    public Board findByUuid(String uuid, Authentication authentication) throws NotFound {
+       User user = (User) authentication.getPrincipal();
        Board board = boardRepository.findByUuid(uuid);
-       User user = userRepository.findUserById(userid);
-       if (board != null && user != null) {
+       if (board != null && board.getUserid() == user.getId()) {
            return board;
        } else  {
-           if (user == null) {
-               throw new NotFoundUser("Can't find User with this id");
+           if (user.getId() != board.getUserid()) {
+               throw new NotFound("You don't have this board");
            }
            if(uuid == null) {
                throw new NotFound("Write a uuid of board you want to see");
            }
-           if (board == null ) {
+           if (board == null) {
                throw new NotFound("board with this uuid does not exist");
            }
            return null;
        }
     }
-    public void delete(String userid, String uuid) throws NotFound, NotFoundUser {
+    public void delete(String uuid) throws NotFound {
        Board boardToDelete = boardRepository.findByUuid(uuid);
-       User user = userRepository.findUserById(userid);
-       if(boardToDelete != null && user != null) {
+
+       if(boardToDelete != null) {
            boardRepository.deleteById(uuid);
        } else {
-           if (user == null) {
-               throw new NotFoundUser("Can't find User with this id");
-           }
            if (boardToDelete == null) {
                throw new NotFound("Can't found board with this uuid");
            }
        }
     }
+
+
 }

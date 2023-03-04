@@ -1,13 +1,10 @@
 package com.example.Todolist.Task;
 
-import com.example.Todolist.Board.Board;
-import com.example.Todolist.Board.BoardRepository;
 import com.example.Todolist.Exceptions.AlreadyDefined;
 import com.example.Todolist.Exceptions.NotFound;
-import com.example.Todolist.Exceptions.NotFoundUser;
 import com.example.Todolist.User.User;
-import com.example.Todolist.User.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,18 +13,23 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TaskService {
     private final TaskRepository taskRepository;
-    private final BoardRepository boardRepository;
-    private final UserRepository userRepository;
-    public void save(Task task, String userid) throws AlreadyDefined, NotFound, NotFoundUser {
+    public List<Task> findAllByUser(Authentication authentication) throws NotFound {
+        User user = (User) authentication.getPrincipal();
+        List<Task> task = taskRepository.findAllByUserid(user.getId());
+        if (task.isEmpty()) {
+            throw new NotFound("You haven't any tasks yet");
+        }
+        return task;
+    }
+    public void save(Task task, Authentication authentication) throws AlreadyDefined, NotFound {
+        User user = (User) authentication.getPrincipal();
         Task oldTask = taskRepository.findByName(task.getName());
-        Board board = boardRepository.findByUuid(task.getBoard_uuid());
-        User user = userRepository.findUserById(userid);
-        if (oldTask == null && task.getName() != null && board != null && user != null) {
-            task.setUserid(userid);
+        if (oldTask == null && task.getName() != null) {
+            task.setUserid(user.getId());
             taskRepository.save(task);
         } else {
-            if (user == null) {
-                throw new NotFoundUser("Can't find User with this id");
+            if (task.getUserid() != user.getId()) {
+                throw new NotFound("You don't have access to save task on this user's account");
             }
             if (task.getName() == null) {
                 throw new NotFound("You don't write a name");
@@ -35,18 +37,11 @@ public class TaskService {
             if (oldTask != null) {
                 throw new AlreadyDefined("Task with this name already defined");
             }
-            if (board == null) {
-                throw new NotFound("Can't find board with this uuid for task");
-            }
         }
     }
-    public void update(Task task, String uuid, String userid) throws NotFound, NotFoundUser, AlreadyDefined {
+    public void update(Task task, String uuid) throws NotFound, AlreadyDefined {
         Task newTask = taskRepository.findByUuid(uuid);
         Task oldTask = taskRepository.findByName(task.getName());
-        User user = userRepository.findUserById(userid);
-        if (user == null) {
-            throw new NotFoundUser("Can't find User with this id");
-        }
         if (task.getName() == null) {
             throw new NotFound("You don't write a name");
         }
@@ -59,51 +54,32 @@ public class TaskService {
         newTask.setName(task.getName());
         taskRepository.save(newTask);
     }
-    public Task findByUuid(String uuid, String userid) throws NotFound, NotFoundUser {
+    public Task findByUuid(String uuid, Authentication authentication) throws NotFound {
+        User user = (User) authentication.getPrincipal();
         Task task = taskRepository.findByUuid(uuid);
-        User user = userRepository.findUserById(userid);
-        if (task != null && user != null) {
+        if (task != null && task.getUserid() == user.getId()) {
             return task;
-        } else {
-            if (user == null) {
-                throw new NotFoundUser("Can't find User with this id");
+        } else  {
+            if (user.getId() != task.getUserid()) {
+                throw new NotFound("You don't have this board");
             }
             if(uuid == null) {
-                throw new NotFound("Write a uuid of task you want to see");
+                throw new NotFound("Write a uuid of board you want to see");
             }
             if (task == null) {
-                throw new NotFound("Task with this uuid does not exist");
+                throw new NotFound("board with this uuid does not exist");
             }
             return null;
         }
     }
-    public void delete(String uuid, String userid) throws NotFound, NotFoundUser {
+    public void delete(String uuid) throws NotFound {
         Task taskToDelete = taskRepository.findByUuid(uuid);
-        User user = userRepository.findUserById(userid);
-        if(taskToDelete != null && user != null) {
+        if(taskToDelete != null) {
             taskRepository.deleteById(uuid);
         } else {
-            if (user == null) {
-                throw new NotFoundUser("Can't find User with this id");
-            }
             if (taskToDelete == null) {
                 throw new NotFound("Can't found task with this uuid");
             }
         }
-    }
-
-    public List<Task> findAll(String userid) throws NotFoundUser, NotFound {
-        List<Task> tasks = taskRepository.findAllByUserid(userid);
-        User user = userRepository.findUserById(userid);
-        if (userid == null) {
-            throw new NotFoundUser("Please, write id");
-        }
-        if(user == null) {
-            throw new NotFoundUser("Can't find User with this id");
-        }
-        if (tasks.isEmpty()) {
-            throw new NotFound("You haven't any tasks yet");
-        }
-        return tasks;
     }
 }
