@@ -1,5 +1,6 @@
 package com.example.Todolist.Auth;
 
+import com.example.Todolist.User.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,4 +18,6 @@ public class RegisterRequest {
     private String email;
 
     private String password;
+
+    private Role role;
 }

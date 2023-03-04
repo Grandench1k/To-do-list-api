@@ -2,7 +2,6 @@ package com.example.Todolist.Auth;
 
 import com.example.Todolist.Config.JwtService;
 import com.example.Todolist.Exceptions.AlreadyDefined;
-import com.example.Todolist.User.Role;
 import com.example.Todolist.User.User;
 import com.example.Todolist.User.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +23,7 @@ public class AuthService {
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())
                 .email(request.getEmail())
-                .role(Role.USER)
+                .role(request.getRole())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
         System.out.println(userRepository.findUserByEmail(user.getEmail()));
